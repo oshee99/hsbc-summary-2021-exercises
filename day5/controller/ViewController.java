@@ -1,18 +1,23 @@
-package com.hsbc.main;
+package com.hsbc.controller;
 
 import java.util.Scanner;
 
 import com.hsbc.beans.Employee;
+import com.hsbc.exceptions.EmployeeAlreadyExistsException;
 import com.hsbc.exceptions.EmployeeNotFoundException;
+import com.hsbc.factory.ObjectFactory;
 import com.hsbc.service.EmployeeService;
 import com.hsbc.service.EmployeeServiceImpl;
 
 public class ViewController {
 
 	public static void main(String[] args) {
+		
 		Scanner scan = new Scanner(System.in);
-		// this is wrong way of initializing which we will change by factory pattern.
-		EmployeeService service = new EmployeeServiceImpl();
+		
+		ObjectFactory factory = new ObjectFactory();
+		EmployeeService service = factory.getServiceInstance();
+		
 		int controllerOption = 0;
 		do {
 			System.out.println("Enter options:-");
@@ -28,9 +33,14 @@ public class ViewController {
 				emp.setName(scan.next());
 				System.out.println("Enter salary");
 				emp.setSalary(scan.nextDouble());
-				service.store(emp);
-				System.out.println("Successfully stored.....");
-				System.out.println("---------------------------------");
+				try {
+					service.store(emp);
+					System.out.println("Successfully stored.....");
+					System.out.println("---------------------------------");
+				} catch (EmployeeAlreadyExistsException e2) {
+					System.err.println(e2.getMessage());
+				}
+				
 				break;
 			case 2: 
 				System.out.println("-------Enter id to search --------------");

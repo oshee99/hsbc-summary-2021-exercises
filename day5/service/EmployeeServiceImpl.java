@@ -3,19 +3,30 @@ package com.hsbc.service;
 import com.hsbc.beans.Employee;
 import com.hsbc.dao.EmployeeDao;
 import com.hsbc.dao.EmployeeDaoArrayImpl;
+import com.hsbc.exceptions.EmployeeAlreadyExistsException;
 import com.hsbc.exceptions.EmployeeNotFoundException;
+import com.hsbc.factory.ObjectFactory;
 
 public class EmployeeServiceImpl implements EmployeeService {
 	private EmployeeDao dao = null;
 	public EmployeeServiceImpl() {
-		// this is wrong approach we need to use factory pattern
-		dao = new EmployeeDaoArrayImpl();
+		
+		ObjectFactory factory = new ObjectFactory();
+		dao = factory.getDaoInstance();
 	}
 
 	@Override
-	public void store(Employee employee) {
+	public void store(Employee employee) throws EmployeeAlreadyExistsException{
+		Employee[] e = dao.findAllEmployees();
+		for(Employee emp:e) {
+			if(emp.getId() == employee.getId())
+			{
+				throw new EmployeeAlreadyExistsException("Sorry employee with an id "+employee.getId()+" already exists.");
+			}
+		}
 		dao.save(employee);
 	}
+		
 
 	@Override
 	public Employee findEmployee(int id) throws EmployeeNotFoundException {
